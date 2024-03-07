@@ -1,4 +1,4 @@
-﻿# accent-picker
+﻿# pallette-generator
 
 Simple accent picker for UI/UX and software development work.
 

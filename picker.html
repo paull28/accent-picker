@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="bs.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colour Picker</title>
+</head>
+
+<body>
+    <h2>Palette Generator</h2>
+    
+    <div class="instructions">
+      <div class="row"><span>Click a box to copy the colour code</span></div>
+      <div class="row2"><span>Click a title to toggle visibility</span></div>
+    </div>
+    <div class="color-picker">
+        <div class="color-box accent-box"><span id="color-code-value"></span></div>
+        <input type="range" min="0" max="360" value="0" id="hue-slider" />
+        <input type="range" min="0" max="100" value="50" id="shade-slider" />
+    </div>
+
+    <!-- <h2>Analoguous<span class="dropdown-arrow">▼</span></h2> -->
+    <h2><span class="dropdown-arrow">Analoguous</span></h2>
+    <div class="container">
+      <div class="row">
+            <div class="accent-box" id="original1"><span id="original1-val"></span></div>
+            <div class="accent-box" id="accent1"><span id="accent1-val"></span></div>
+            <div class="accent-box" id="accent2"><span id="accent2-val"></span></div>
+      </div>
+    </div>
+
+    <!-- <h2>Complementary<span class="dropdown-arrow">▼</span></h2> -->
+    <h2><span class="dropdown-arrow">Complementary</span></h2>
+    <div class="container">
+      <div class="row">
+            <div class="accent-box" id="original2"><span id="original2-val"></span></div>
+            <div class="accent-box" id="complementary"><span id="complementary-val"></span></div>
+      </div>
+    </div>
+
+    <!-- <h2>Tetradic<span class="dropdown-arrow">▼</span></h2> -->
+    <h2><span class="dropdown-arrow">Tetradic</span></h2>
+    <div class="container">
+      <div class="row">
+        <div class="accent-box" id="original3"><span id="original3-val"></span></div>
+        <div class="accent-box" id="tetradic1"><span id="tetradic1-val"></span></div>
+        <div class="accent-box" id="tetradic2"><span id="tetradic2-val"></span></div>
+        <div class="accent-box" id="tetradic3"><span id="tetradic3-val"></span></div>
+      </div>
+    </div>
+
+<script>
+
+$(document).ready(function() {
+      $('.dropdown-arrow').click(function() {
+        var container = $(this).closest('h2').next('.container');
+        container.slideToggle(); // Toggle the visibility of the associated container
+      });
+    });
+    
+function hslToHex(h, s, l) {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l; // achromatic
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+  const toHex = x => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+const colorBox = document.querySelector('.color-box');
+const hueSlider = document.getElementById('hue-slider');
+const shadeSlider = document.getElementById('shade-slider');
+const colorCodeValue = document.getElementById('color-code-value');
+
+const original1 = document.getElementById('original1');
+const original1Val = document.getElementById('original1-val');
+const accent1 = document.getElementById('accent1');
+const accent1Val = document.getElementById('accent1-val');
+const accent2 = document.getElementById('accent2');
+const accent2Val = document.getElementById('accent2-val');
+
+const original2 = document.getElementById('original2');
+const original2Val = document.getElementById('original2-val');
+const complementary = document.getElementById('complementary');
+const complementaryVal = document.getElementById('complementary-val');
+
+const original3 = document.getElementById('original3');
+const original3Val = document.getElementById('original3-val');
+const tetradic1 = document.getElementById('tetradic1');
+const tetradic1Val = document.getElementById('tetradic1-val');
+const tetradic2 = document.getElementById('tetradic2');
+const tetradic2Val = document.getElementById('tetradic2-val');
+const tetradic3 = document.getElementById('tetradic3');
+const tetradic3Val = document.getElementById('tetradic3-val');
+
+function updateColor() {
+  const hueValue = hueSlider.value;
+  const shadeValue = shadeSlider.value;
+
+  const accentBoxes = document.getElementsByClassName('accent-box');
+  if (shadeValue < 50) {
+    for (let i = 0; i < accentBoxes.length; i++) {
+      accentBoxes[i].style.color = 'white';
+    }
+  } else {
+    for (let i = 0; i < accentBoxes.length; i++) {
+      accentBoxes[i].style.color = 'black';
+    }
+  }
+
+  const color = `hsl(${hueValue}, 100%, ${shadeValue}%)`;
+  colorBox.style.backgroundColor = original1.style.backgroundColor = original2.style.backgroundColor = original3.style.backgroundColor = color;
+  colorCodeValue.textContent = original1Val.textContent = original2Val.textContent = original3Val.textContent = hslToHex(hueValue, 100, shadeValue);
+
+  const accent1Value = parseInt(hueValue, 10) + 25;
+  const accent2Value = parseInt(hueValue, 10) - 25;
+
+  accent1.style.backgroundColor =`hsl(${accent1Value}, 100%, ${shadeValue}%)`;
+  accent1Val.textContent = hslToHex(accent1Value, 100, shadeValue);
+  accent2.style.backgroundColor =`hsl(${accent2Value}, 100%, ${shadeValue}%)`;
+  accent2Val.textContent = hslToHex(accent2Value, 100, shadeValue);;
+
+  const complementaryValue = (parseInt(hueValue, 10) + 180) % 360;
+
+  complementary.style.backgroundColor = tetradic2.style.backgroundColor =`hsl(${complementaryValue}, 100%, ${shadeValue}%)`;
+  complementaryVal.textContent = tetradic2Val.textContent = hslToHex(complementaryValue, 100, shadeValue);
+
+  const tetradic1Value = (parseInt(hueValue, 10) + 90) % 360;
+  const tetradic3Value = (parseInt(hueValue, 10) + 270) % 360;
+  
+  tetradic1.style.backgroundColor =`hsl(${tetradic1Value}, 100%, ${shadeValue}%)`;
+  tetradic1Val.textContent = hslToHex(tetradic1Value, 100, shadeValue);
+  tetradic3.style.backgroundColor =`hsl(${tetradic3Value}, 100%, ${shadeValue}%)`;
+  tetradic3Val.textContent = hslToHex(tetradic3Value, 100, shadeValue);
+}
+
+hueSlider.addEventListener('input', updateColor);
+shadeSlider.addEventListener('input', updateColor);
+
+// Function to copy text to clipboard
+function copyToClipboard(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
+
+// Add click event listeners to each accent-box
+const accentBoxes = document.getElementsByClassName('accent-box');
+for (let i = 0; i < accentBoxes.length; i++) {
+  accentBoxes[i].addEventListener('click', function () {
+    const textContent = this.textContent;
+    copyToClipboard(textContent);
+    alert('Text copied to clipboard: ' + textContent);
+  });
+}
+
+
+</script>
+
+</body>
+</html>
